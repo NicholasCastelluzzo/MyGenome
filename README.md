@@ -5,3 +5,4 @@ Use headings to highlight the individual procedures (# for top level, ## for sec
 Use numbers to list steps
 identify code lines by placing them between lines with ```bash and ```
 
+![MyGenomeNCBISub.png](/data/MyGenomeNCBISub.png)
