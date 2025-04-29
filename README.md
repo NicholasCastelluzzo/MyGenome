@@ -13,7 +13,10 @@ MyGenome Class Metadata sheet information:
 For number of paired reads remaining after trimming:
 zcat Bm88509_paired_1.fq.gz | grep -c "^@"
 For number of high quality nucleotides (R1 + R2)  reads: 
-zcat Bm88509_paired_1.fq.gz | awk 'NR%4==2 {bases += length($0)} END {print bases}'
+zcat Bm88509_paired_1.fq.gz | awk 'NR%4==2 {bases += length($0)} END {print bases}' 
++
+zcat Bm88509_paired_2.fq.gz | awk 'NR%4==2 {bases += length($0)} END {print bases}'
+= 2277218354
 
 For the Total Genome Size at step size 10:
 I navigated in the UK MCC to the velvet optimizer log file created with my output directory. I then used nano to find the value in the "total" spot at the bottom of the LOG file.
