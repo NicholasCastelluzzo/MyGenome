@@ -13,6 +13,7 @@ Submission Portal: https://nam04.safelinks.protection.outlook.com/?url=https%3A%
 MyGenome Class Metadata sheet information: 
 For number of paired reads remaining after trimming:
 zcat Bm88509_paired_1.fq.gz | grep -c "^@" = 7612219
+
 For number of high quality nucleotides (R1 + R2)  reads: 
 zcat Bm88509_paired_1.fq.gz | awk 'NR%4==2 {bases += length($0)} END {print bases}' 
 +
