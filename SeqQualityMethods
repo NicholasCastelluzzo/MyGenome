@@ -1,4 +1,0 @@
-When doing Sequence quality and trimming, I followed the instructions quite carefully everytime it was involved, as this gave me the most difficulty. 
-I first downloaded the trimmomatic program onto my VM and ran it with my forward and backwards sequence reads using the following command line tool:
-
-'''bash  

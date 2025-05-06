@@ -1,0 +1,11 @@
+When doing Sequence quality and trimming, I followed the instructions quite carefully everytime it was involved, as this gave me the most difficulty. 
+First, I ran fastqc to check my base reads to make sure they were ready for trimming by running:
+'''bash  $env:DISPLAY = "localhost:0" ''' before logging onto my VM with a -Y mod. This configured my machine to be able to run fastqc in my VM.
+I then ran "fastqc &" to open everything.
+Once I verifired that, I then downloaded the trimmomatic program onto my VM then ran it with my forward and backwards sequence reads using the following command line tool:
+
+'''bash  java -jar trimmomatic-0.38 PE -threads 2 -phred33 Bm88509_1.fq.gz Bm88509_2.fq.gz Bm88509_paired_1.fq.gz
+Bm88509_unpaired_1.fq.gz Bm88509_paired_2.fq.gz Bm88509_unpaired_2.fq.gz ILLUMINACLIP:adaptors.fa:2:30:10 SLIDINGWINDOW:20:20 MINLEN: 100  '''
+
+This gave me my paired and unpaired output trimmed files, of which you can see the html outputs in this repository.
+
