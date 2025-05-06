@@ -8,4 +8,9 @@ Once I verifired that, I then downloaded the trimmomatic program onto my VM then
 Bm88509_unpaired_1.fq.gz Bm88509_paired_2.fq.gz Bm88509_unpaired_2.fq.gz ILLUMINACLIP:adaptors.fa:2:30:10 SLIDINGWINDOW:20:20 MINLEN: 100  '''
 
 This gave me my paired and unpaired output trimmed files, of which you can see the html outputs in this repository.
+These files also gave me the ability to run the command line tools to find: the # of single end raw reads (8214741), 
+the # of cleaned reads used for assembly (7612219), and the total # of bases in my cleaned reads (2277218354). 
+You can see the code for how I got these values in the README file in this repository. 
+
+
 
