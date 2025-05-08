@@ -29,9 +29,16 @@ N50 values for both step sizes. These results can be found in the README file.
 I then used some scripts to finalize my genome assembly. These included SimpleFastaHeaders.pl to rename
 the sequence headers to a default format for viewing purposes, CullShortContigs.pl that eliminiated all contigs
 from the genome that were too short, and then SeqLen.pl which gave me the total sequence length of 
-the final genome .fasta file which in my case was 40976953. I also had to add in 2 contigs into the final 
-NCBI submission due to some error, as well as run a command line tool to eliminate a couple hundred nucelotides 
-from one of the contigs. The code is as follows: 
+the final genome .fasta file which in my case was 40976953. The code for all 3 were as follows: 
+
+'''bash perl SimpleFastaHeaders.pl /project/farman_s25abt480/naca249/Bm88509_final.fasta> Bm88509  '''
+
+'''bash perl CullShortContigs.pl /project/farman_s25abt480/naca249/Bm88509_final.fasta  '''
+
+'''bash perl SeqLen.pl /project/farman_s25abt480/naca249/Bm88509_final.fasta
+
+I also had to add in 2 contigs into the final NCBI submission due to some error, as well as run a command line tool 
+to eliminate a couple hundred nucelotides from one of the contigs. The code is as follows: 
 
 '''bash awk -v target=">Bm88509_contig3268" -v trim=450 '
 function wrap(seq, width) {
