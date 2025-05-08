@@ -14,3 +14,128 @@ You can see the code for how I got these values in the README file in this repos
 
 
 
+
+After completing sequence quality control and trimming my files, I moved onto creating my Genome Assembly. The semester goal here was to assemble as clean a genome for
+my assigned sample provided in the class excel sheet. I began by running the velvet program using the suggested k-mer value I got from the website provided. I did this
+for two trials with differing step sizes (10 and 2). The code for this would've looked something like:
+
+'''bash velvetoptimiser -s 121 -e 201 -x <step size> -d Bcereus_velvet_optimal -f -shortpaired \
+-fastq.gz -seperate <Bm88509_1_paired.fq> <Bm88509_2_paired.fq> -t 1 '''
+
+The run with the step size of 2 is the one I used to create my final genome assembly. After running this program 
+using these two step sizes, I examined the output directories put into my personal directory within the class MCC. 
+From this I was able to go into the created log files to find the values for the total number of contigs and the 
+N50 values for both step sizes. These results can be found in the README file.
+I then used some scripts to finalize my genome assembly. These included SimpleFastaHeaders.pl to rename
+the sequence headers to a default format for viewing purposes, CullShortContigs.pl that eliminiated all contigs
+from the genome that were too short, and then SeqLen.pl which gave me the total sequence length of 
+the final genome .fasta file which in my case was 40976953. I also had to add in 2 contigs into the final 
+NCBI submission due to some error, as well as run a command line tool to eliminate a couple hundred nucelotides 
+from one of the contigs. The code is as follows: 
+
+'''bash awk -v target=">Bm88509_contig3268" -v trim=450 '
+function wrap(seq, width) {
+    for (i = 1; i <= length(seq); i += width)
+        print substr(seq, i, width);
+}
+BEGIN { in_target=0; }
+/^>/ {
+    if (in_target && seq != "") {
+        wrap(substr(seq, trim + 1), 60);
+    } else if (in_target) {
+        print "";  # print blank if sequence was too short
+    }
+    print $0;
+    in_target = ($0 == target);
+    seq = "";
+    next;
+}
+{
+    if (in_target) {
+        seq = seq $0;
+    } else {
+        print $0;
+    }
+}
+END {
+    if (in_target && seq != "") {
+        wrap(substr(seq, trim + 1), 60);
+    }
+}' Bm88509_final.fasta > Bm88509_final_trimmed.fasta  '''
+
+
+
+
+The next step was running my finalized genome through BUSCO in order to assess the genome's completeness.
+This involved using BLAST to search for a set of single-copy genes that are known to have orthologs in 
+genomes of related species. I first went and copied the BuscoSingularity.sh into my personal MCC directory.
+Then I ran BUSCO using the code: 
+
+'''bash sbatch /project/farman_s25abt480/SLURM_SCRIPTS/BuscoSingularity.sh /project/farman_s25abt480/naca249/Bm88509_final.fasta  '''
+
+It took a while to run, but when I looked at the output log file, it gave me: the fold coverage (54.00),
+The BUSCO incomplete score (98.40%), and the completed BUSCO score (98.60%). This was in the acceptable margin 
+for my genomes completeness. 
+
+
+
+
+Next step was running a blastn search on my genome assembly using a few different querys like "MoRepeats.fasta"
+This query file contains the sequences of most of the transposons in the Magnaporthe genome, which was the g
+genome we used as reference during this exercise. Because these elements can copy themselves, they usually exist 
+in multiple copies in the genome. The code I used was as follows: 
+
+'''bash blastn -subject Bm88509_final.fasta -query MoRepeats.fasta -out MoRepeats.Bm88509_final.BLASTn6 -evalue 1e-20 -outfmt 6  '''
+
+I then used the file genereated by this to use BLAST to answer relevant questions like: 
+
+What is the ID and length of the longest contig in your assembly: 
+'''bash perl SequenceLengths.pl Bm88509_final.fasta | sort -k2n
+
+Are there any repeat sequences on said contig? If so, extract for the chromosome and then sort them according to chromosome position.
+'''bash awk '$2 ~/contigXXX/' MoRepeats.Bm88509_final.BLASTn6 | sort -k9n  '''
+
+This provided a little more background knowledge that allowed me to better understand the process of what we 
+were actually doing. 
+
+
+
+
+Finally, before the last bit of editing I did on my genome before my aforementioned second and final NCBI submission,
+I made my gene predictions. This involved me using directories "snap", "augustus", and "maker" on my VM
+to make said predictions and the final value needed for the class data sheet. I started in snap which
+took me through an excercise that compared my final genome assembly with a reference called "Moryzae".
+This provided me with some output and got me familiar with the  .zff and .gff file extensions.
+Code: 
+'''bash snap-hmm Moryzae.hmm Bm88509_final.fasta > Bm88509-snap.zff '''
+'''bash fathom Bm88509-snap.zff Bm88509_final.fasta -gene-stats  '''
+'''bash snap-hmm Moryzae.hmm Bm88509_final.fasta -gff > Bm88509-snap.gff2
+The next part moved on to the Augustus program which used the magnaporthe as a comparable reference. Like snap, this 
+it is a gene finder, however rather than specifying a parameter file explicitly like in snap, you use the name of
+one of the included species when using augustus. Code was as follows: 
+
+'''bash augustus --species=magnaporthe_grisea --gff3=on --singlestrand=true --progress=true ~/genes/snap/Bm88509_final.fasta > Bm88509-augustus.gff3  '''
+
+Finally, and most importantly, Maker. Maker is controlled through a set of text based configuration files which I edited as 
+instructed before running. I started by running '''bash maker -CTL ''' to create the needed config files.
+The config file I edited through this process was called "maker_opts.ctl".
+This run took over 4 hours to complete, but its output gave me the gene predictions i was looking
+for. The code for doing so was as follows (with the editing of the configuration files left out): 
+
+'''bash maker 2>&1 | tee maker.log  '''
+
+'''bash cat Bm88509.output/Bm88509_master_datastore_index.log  '''
+
+'''bash gff3_merge -d Bm88509.maker.output/Bm88509_master_datastore_index.log -o Bm88509-annotations.gff  '''
+
+This annotations file was used as the target for a command line tool i used to count the number of
+predicted proteins in my assembly to fill out the final blank on the class data sheet (12886). 
+The code I used to get that value was as follows: 
+
+
+
+
+
+
+
+
