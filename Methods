@@ -129,9 +129,12 @@ for. The code for doing so was as follows (with the editing of the configuration
 '''bash gff3_merge -d Bm88509.maker.output/Bm88509_master_datastore_index.log -o Bm88509-annotations.gff  '''
 
 This annotations file was used as the target for a command line tool i used to count the number of
-predicted proteins in my assembly to fill out the final blank on the class data sheet (12886). 
+predicted proteins in my assembly to fill out the final blank on the class data sheet. 
 The code I used to get that value was as follows: 
 
+'''bash awk ' BEGIN {count=0;} {if ($3 == "gene") count+=1} END{print count}' Bm88509-annotations.gff ''' Which gave me 12886 total.
+
+After my final submission to NCBI with everything cleaned and fixed, my total genome size was 40,976,503 and I had 2,921 total contigs. 
 
 
 
